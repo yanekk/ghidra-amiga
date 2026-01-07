@@ -27,6 +27,7 @@ import ghidra.app.util.bin.ByteProvider;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
+import ghidra.app.util.opinion.Loader;
 import ghidra.framework.Application;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.data.DataType;
@@ -60,14 +61,14 @@ public class AmigaUssLoader extends AbstractLibrarySupportLoader {
 	}
 
 	@Override
-	protected void load(ByteProvider provider, LoadSpec loadSpec, List<Option> options, Program program, TaskMonitor monitor, MessageLog log) throws IOException {
+	protected void load(Program program, Loader.ImporterSettings settings) throws IOException {
 		FlatProgramAPI fpa = new FlatProgramAPI(program);
 		Memory mem = program.getMemory();
 		try {
-			loadUss(provider, fpa, monitor, mem, log);
+			loadUss(settings.provider(), fpa, settings.monitor(), mem, settings.log());
 		} catch (Throwable e) {
 			e.printStackTrace();
-			log.appendException(e);
+			settings.log().appendException(e);
 		}
 	}
 

@@ -98,26 +98,26 @@ public class AmigaHunkLoader extends AbstractLibrarySupportLoader {
 	}
 
 	@Override
-	protected void load(ByteProvider provider, LoadSpec loadSpec, List<Option> options, Program program, TaskMonitor monitor, MessageLog log) throws IOException {
+	protected void load(Program program, Loader.ImporterSettings settings) throws IOException {
 		refsLastIndex = 0;
 		defsLastIndex = 0;
-		
+
 		FlatProgramAPI fpa = new FlatProgramAPI(program);
 		Memory mem = program.getMemory();
 
-		BinaryReader reader = new BinaryReader(provider, false);
+		BinaryReader reader = new BinaryReader(settings.provider(), false);
 
 		// executable
 		HunkBlockType type = HunkBlockFile.peekType(reader);
 		HunkBlockFile hbf = new HunkBlockFile(reader, type == HunkBlockType.TYPE_LOADSEG);
 		switch (type) {
-		case TYPE_LOADSEG: 
+		case TYPE_LOADSEG:
 		case TYPE_UNIT:
 			try {
-				loadExecutable(imageBase, type == HunkBlockType.TYPE_LOADSEG, hbf, fpa, monitor, mem, log);
+				loadExecutable(imageBase, type == HunkBlockType.TYPE_LOADSEG, hbf, fpa, settings.monitor(), mem, settings.log());
 			} catch (Throwable e) {
 				e.printStackTrace();
-				log.appendException(e);
+				settings.log().appendException(e);
 			}
 		break;
 		case TYPE_LIB:
@@ -385,7 +385,7 @@ public class AmigaHunkLoader extends AbstractLibrarySupportLoader {
 	}
 
 	@Override
-	public List<Option> getDefaultOptions(ByteProvider provider, LoadSpec loadSpec, DomainObject domainObject, boolean isLoadIntoProgram) {
+	public List<Option> getDefaultOptions(ByteProvider provider, LoadSpec loadSpec, DomainObject domainObject, boolean loadIntoProgram, boolean mirrorFsLayout) {
 		List<Option> list = new ArrayList<Option>();
 
 		LanguageCompilerSpecPair pair = loadSpec.getLanguageCompilerSpec();
